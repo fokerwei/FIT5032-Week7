@@ -1,0 +1,87 @@
+﻿@model IEnumerable<MyDatePickerV2.Models.Appointment>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+<head>
+    <link rel="preload" href="/fonts/Lumanosimo.ttf" as="font">
+    <title> Display Images </title>
+</head>
+
+    <body>
+        <h4 align="center">Display Images</h4>
+        <div class="container" align="center">
+            <img id="ImageView" />
+            <button onClick="GetImage()">Get an Image</button>
+        </div>
+    </body>
+
+    <script>
+        function GetImage() {
+
+            // Create FormData object:
+            var SentData = new FormData();
+            SentData.append("Height", parseInt(window.screen.availHeight));
+            SentData.append("Width", parseInt(window.screen.availWidth));
+
+            // Make a POST request to the controller action with the data
+            $.ajax({
+                url: "/Display/GetImage",
+                type: "POST",
+                data: SentData,
+                processData: false,
+                contentType: false,
+                async: false,
+                success: function (response) {
+                    // Convert Base64 string to image data.
+                    var FileData = "data:image/png;base64," + response;
+                    // Save image into the session storage.
+                    sessionStorage.setItem('ImageData', FileData);
+                },
+                error: function (error) {
+                    // Handle any errors from the server
+                    alert(error.statusText);
+                }
+            });
+
+        }
+        var ImageView = document.getElementById('ImageView');
+        var ImageData = sessionStorage.getItem('ImageData');
+        if (ImageData) {
+            ImageView.setAttribute('src', ImageData);
+        }
+    </script>
+
+
+    <style>
+        @@font-face {
+            font-family: 'Testing';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Testing'), 
+                url('/fonts/Lumanosimo.ttf') format('truetype'), 
+                url('/fonts/testfont.woff2') format('woff2');
+        }
+
+        h4 {
+            font-family: 'Testing';
+        }
+    </style>
+
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jquery")
+}
